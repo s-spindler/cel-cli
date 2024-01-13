@@ -9,7 +9,7 @@ import (
 	"github.com/google/cel-go/checker/decls"
 )
 
-func eval(jsonIn map[string]interface{}) (bool, error) {
+func eval(jsonIn map[string]interface{}, expression string) (bool, error) {
 	declarations := cel.Declarations(
 		decls.NewVar("i", decls.NewMapType(decls.String, decls.Dyn)),
 	)
@@ -19,7 +19,7 @@ func eval(jsonIn map[string]interface{}) (bool, error) {
 		log.Fatalf("failed to create environment: %s", err)
 	}
 
-	ast, iss := env.Parse("i.name == 'horst'")
+	ast, iss := env.Parse(expression)
 
 	if iss.Err() != nil {
 		log.Fatalf("failed to parse: %s", iss.Err())
@@ -50,7 +50,9 @@ func main() {
 	var jsonIn map[string]interface{}
 	json.Unmarshal([]byte(`{"name": "horst"}`), &jsonIn)
 
-	out, err := eval(jsonIn)
+	expression := "i.name == 'horst'"
+
+	out, err := eval(jsonIn, expression)
 	if err != nil {
 		log.Fatalf("failed to evaluate: %s", err)
 	}
