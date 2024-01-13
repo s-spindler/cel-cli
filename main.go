@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/checker/decls"
+	"github.com/spf13/pflag"
 )
 
 func eval(jsonIn map[string]interface{}, expression string) (bool, error) {
@@ -47,12 +49,21 @@ func eval(jsonIn map[string]interface{}, expression string) (bool, error) {
 }
 
 func main() {
-	var jsonIn map[string]interface{}
-	json.Unmarshal([]byte(`{"name": "horst"}`), &jsonIn)
+	var (
+		jsonIn     string
+		expression string
+	)
 
-	expression := "i.name == 'horst'"
+	flags := pflag.NewFlagSet("cel-cli", pflag.ExitOnError)
+	flags.StringVarP(&jsonIn, "input-json", "i", "", "JSON input")
+	flags.StringVarP(&expression, "expression", "e", "", "expression to evaluate")
 
-	out, err := eval(jsonIn, expression)
+	flags.Parse(os.Args[1:])
+
+	var jsonMap map[string]interface{}
+	json.Unmarshal([]byte(jsonIn), &jsonMap)
+
+	out, err := eval(jsonMap, expression)
 	if err != nil {
 		log.Fatalf("failed to evaluate: %s", err)
 	}
