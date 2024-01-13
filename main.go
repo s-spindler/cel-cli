@@ -12,12 +12,6 @@ import (
 func main() {
 	var jsonMap map[string]interface{}
 	json.Unmarshal([]byte(`{"name": "horst"}`), &jsonMap)
-	// jsonBytes := []byte(`{"name": "horst"}`)
-	// var prostrct protostruct.Struct
-	// err := protojson.Unmarshal(jsonBytes, &prostrct)
-	// if err != nil {
-	// 	log.Fatalf("failed to convert JSON to proto: %s", err)
-	// }
 
 	declarations := cel.Declarations(
 		decls.NewVar("i", decls.NewMapType(decls.String, decls.Dyn)),
@@ -50,5 +44,4 @@ func main() {
 	}
 
 	fmt.Println(out)
-
 }

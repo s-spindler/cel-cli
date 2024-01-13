@@ -2,10 +2,7 @@ module github.com/s-spindler/cel-cli
 
 go 1.21
 
-require (
-	github.com/golang/protobuf v1.5.3
-	github.com/google/cel-go v0.18.2
-)
+require github.com/google/cel-go v0.18.2
 
 require (
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
