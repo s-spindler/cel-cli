@@ -10,7 +10,10 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func eval(jsonIn map[string]interface{}, expression string) (bool, error) {
+func eval(jsonIn string, expression string) (bool, error) {
+	var jsonMap map[string]interface{}
+	json.Unmarshal([]byte(jsonIn), &jsonMap)
+
 	declarations := cel.Declarations(
 		decls.NewVar("i", decls.NewMapType(decls.String, decls.Dyn)),
 	)
@@ -36,7 +39,7 @@ func eval(jsonIn map[string]interface{}, expression string) (bool, error) {
 		log.Fatalf("failed to create program: %s", err)
 	}
 
-	out, _, err := program.Eval(map[string]interface{}{"i": jsonIn})
+	out, _, err := program.Eval(map[string]interface{}{"i": jsonMap})
 	if err != nil {
 		log.Fatalf("failed to evaluate program: %s", err)
 	}
@@ -59,10 +62,7 @@ func main() {
 
 	flags.Parse(os.Args[1:])
 
-	var jsonMap map[string]interface{}
-	json.Unmarshal([]byte(jsonIn), &jsonMap)
-
-	result, err := eval(jsonMap, expression)
+	result, err := eval(jsonIn, expression)
 	if err != nil {
 		log.Fatalf("failed to evaluate: %s", err)
 	}
