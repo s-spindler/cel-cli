@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 
@@ -63,10 +62,13 @@ func main() {
 	var jsonMap map[string]interface{}
 	json.Unmarshal([]byte(jsonIn), &jsonMap)
 
-	out, err := eval(jsonMap, expression)
+	result, err := eval(jsonMap, expression)
 	if err != nil {
 		log.Fatalf("failed to evaluate: %s", err)
 	}
 
-	fmt.Println(out)
+	if !result {
+		os.Exit(1)
+	}
+	// else: fall through and return default exit code 0
 }
