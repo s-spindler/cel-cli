@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func eval(jsonIn string, expression string) (b bool, err error) {
+func eval(jsonIn string, expression string) (result bool, err error) {
 
 	var jsonMap map[string]interface{}
 	err = json.Unmarshal([]byte(jsonIn), &jsonMap)
@@ -59,8 +59,8 @@ func eval(jsonIn string, expression string) (b bool, err error) {
 		return
 	}
 
-	b = out.Value().(bool)
-	return b, nil
+	result = out.Value().(bool)
+	return result, nil
 }
 
 func main() {
