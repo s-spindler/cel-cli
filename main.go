@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -10,9 +11,14 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func eval(jsonIn string, expression string) (bool, error) {
+func eval(jsonIn string, expression string) (b bool, err error) {
+
 	var jsonMap map[string]interface{}
-	json.Unmarshal([]byte(jsonIn), &jsonMap)
+	err = json.Unmarshal([]byte(jsonIn), &jsonMap)
+	if err != nil {
+		err = fmt.Errorf("failed to parse input: %w", err)
+		return
+	}
 
 	declarations := cel.Declarations(
 		decls.NewVar("i", decls.NewMapType(decls.String, decls.Dyn)),
@@ -20,34 +26,41 @@ func eval(jsonIn string, expression string) (bool, error) {
 
 	env, err := cel.NewEnv(declarations)
 	if err != nil {
-		log.Fatalf("failed to create environment: %s", err)
+		err = fmt.Errorf("failed to create environment: %w", err)
+		return
 	}
 
 	ast, iss := env.Parse(expression)
 
 	if iss.Err() != nil {
-		log.Fatalf("failed to parse: %s", iss.Err())
+		err = fmt.Errorf("failed to parse: %w", iss.Err())
+		return
 	}
 
 	checked, iss := env.Check(ast)
 	if iss.Err() != nil {
-		log.Fatalf("failed to check AST: %s", iss.Err())
+		err = fmt.Errorf("failed to check AST: %w", iss.Err())
+		return
 	}
 
 	program, err := env.Program(checked)
 	if err != nil {
-		log.Fatalf("failed to create program: %s", err)
+		err = fmt.Errorf("failed to create program: %w", err)
+		return
 	}
 
 	out, _, err := program.Eval(map[string]interface{}{"i": jsonMap})
 	if err != nil {
-		log.Fatalf("failed to evaluate program: %s", err)
+		err = fmt.Errorf("failed to evaluate program: %w", err)
+		return
 	}
 	if out.Type() != cel.BoolType {
-		log.Fatalf("expression did not evaluate to boolean but was of type: %s", out.Type())
+		err = fmt.Errorf("expression did not evaluate to boolean but was of type: %s", out.Type())
+		return
 	}
 
-	return out.Value().(bool), nil
+	b = out.Value().(bool)
+	return b, nil
 }
 
 func main() {
