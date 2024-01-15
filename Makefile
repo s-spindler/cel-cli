@@ -6,6 +6,9 @@ build:
 	GOARCH=amd64 GOOS=linux go build -o bin/${BINARY_NAME}-linux main.go
 	GOARCH=amd64 GOOS=windows go build -o bin/${BINARY_NAME}-windows main.go
 
+test:
+	go test ./...
+
 clean:
 	go clean
 	rm -f bin/*
