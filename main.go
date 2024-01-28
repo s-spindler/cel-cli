@@ -64,6 +64,7 @@ func main() {
 		jsonIn         string
 		expression     string
 		boolean_result bool
+		quiet_mode     bool
 	)
 
 	flags := pflag.NewFlagSet("cel-cli", pflag.ExitOnError)
@@ -73,6 +74,8 @@ func main() {
 		"Forces the expression to evaluate to a boolean value, terminating with a non-zero "+
 			"status code otherwise. _Note_: Only a true expression will exit the program with "+
 			"0 while false will be non-zero.")
+	flags.BoolVarP(&quiet_mode, "quiet", "q", false,
+		"Omits printing of the expression's result. Error messages are still printed.")
 
 	flags.Parse(os.Args[1:])
 
@@ -82,18 +85,22 @@ func main() {
 	}
 
 	out := result.Value()
-	if !boolean_result {
+
+	exitCode := 0
+	print := !quiet_mode
+
+	if boolean_result {
+		if result.Type() != cel.BoolType {
+			exitCode = 2
+			print = false
+		} else if !out.(bool) {
+			exitCode = 1
+		}
+	}
+
+	if print {
 		fmt.Println(out)
-		os.Exit(0)
 	}
 
-	if result.Type() != cel.BoolType {
-		os.Exit(2)
-	}
-
-	fmt.Println(out)
-	if !out.(bool) {
-		os.Exit(1)
-	}
-
+	os.Exit(exitCode)
 }
