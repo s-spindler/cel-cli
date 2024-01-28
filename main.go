@@ -50,19 +50,13 @@ func eval(jsonIn string, expression string) (result ref.Val, err error) {
 		return
 	}
 
-	out, _, err := program.Eval(map[string]interface{}{"i": jsonMap})
+	result, _, err = program.Eval(map[string]interface{}{"i": jsonMap})
 	if err != nil {
 		err = fmt.Errorf("failed to evaluate program: %w", err)
 		return
 	}
-	// if out.Type() != cel.BoolType {
-	// 	err = fmt.Errorf("expression did not evaluate to boolean but was of type: %s", out.Type())
-	// 	return
-	// }
 
-	// result = out.Value().(bool)
-
-	return out, nil
+	return
 }
 
 func main() {
@@ -87,9 +81,19 @@ func main() {
 		log.Fatalf("failed to evaluate: %s", err)
 	}
 
-	fmt.Println(result)
-	// if !result {
-	// 	os.Exit(1)
-	// }
-	// else: fall through and return default exit code 0
+	out := result.Value()
+	if !boolean_result {
+		fmt.Println(out)
+		os.Exit(0)
+	}
+
+	if result.Type() != cel.BoolType {
+		os.Exit(2)
+	}
+
+	fmt.Println(out)
+	if !out.(bool) {
+		os.Exit(1)
+	}
+
 }

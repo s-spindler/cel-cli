@@ -75,7 +75,7 @@ func Test_eval(t *testing.T) {
 				t.Errorf("eval() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if gotResult != tt.wantResult {
+			if gotResult.Value() != tt.wantResult {
 				t.Errorf("eval() = %v, want %v", gotResult, tt.wantResult)
 			}
 		})
