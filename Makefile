@@ -7,7 +7,7 @@ build:
 	GOARCH=amd64 GOOS=windows go build -o bin/${BINARY_NAME}-windows main.go
 
 test:
-	go test ./...
+	go test -v ./...
 
 clean:
 	go clean
